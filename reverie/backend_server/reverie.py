@@ -143,14 +143,16 @@ class ReverieServer:
     # used to communicate the code and step information to the frontend. 
     # Note that step file is removed as soon as the frontend opens up the 
     # simulation. 
-    curr_sim_code = dict()
-    curr_sim_code["sim_code"] = self.sim_code
-    with open(f"{fs_temp_storage}/curr_sim_code.json", "w") as outfile: 
+    self._sync_frontend_state()
+
+
+  def _sync_frontend_state(self):
+    curr_sim_code = {"sim_code": self.sim_code}
+    with open(f"{fs_temp_storage}/curr_sim_code.json", "w") as outfile:
       outfile.write(json.dumps(curr_sim_code, indent=2))
-    
-    curr_step = dict()
-    curr_step["step"] = self.step
-    with open(f"{fs_temp_storage}/curr_step.json", "w") as outfile: 
+
+    curr_step = {"step": self.step}
+    with open(f"{fs_temp_storage}/curr_step.json", "w") as outfile:
       outfile.write(json.dumps(curr_step, indent=2))
 
 
@@ -398,6 +400,7 @@ class ReverieServer:
           #  "persona": {"Klaus Mueller": {"movement": [38, 12]}}, 
           #  "meta": {curr_time: <datetime>}}
           curr_move_file = f"{sim_folder}/movement/{self.step}.json"
+          create_folder_if_not_there(curr_move_file)
           with open(curr_move_file, "w") as outfile: 
             outfile.write(json.dumps(movements, indent=2))
 
@@ -405,6 +408,7 @@ class ReverieServer:
           # current time moves by <sec_per_step> amount. 
           self.step += 1
           self.curr_time += datetime.timedelta(seconds=self.sec_per_step)
+          self._sync_frontend_state()
 
           int_counter -= 1
           
@@ -610,8 +614,6 @@ if __name__ == '__main__':
 
   rs = ReverieServer(origin, target)
   rs.open_server()
-
-
 
 
 

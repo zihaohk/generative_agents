@@ -10,6 +10,7 @@ environment/frontend_server/storage/**
 environment/frontend_server/compressed_storage/**
 environment/frontend_server/temp_storage/**
 environment/frontend_server/**/*.sqlite3
+reverie/backend_server/logs/**
 
 # Bulky source asset packs not needed by the current runtime paths
 environment/frontend_server/static_dirs/assets/the_ville/visuals/map_assets/Cute RPG World 40 usd packet/**

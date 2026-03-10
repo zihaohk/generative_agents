@@ -102,22 +102,36 @@ def UIST_Demo(request):
   return demo(request, "March20_the_ville_n25_UIST_RUN-step-1-141", 2160, play_speed="3")
 
 
-def home(request):
+def _load_current_sim_state():
   f_curr_sim_code = "temp_storage/curr_sim_code.json"
   f_curr_step = "temp_storage/curr_step.json"
 
-  if not check_if_file_exists(f_curr_step): 
+  if not check_if_file_exists(f_curr_sim_code):
+    return None, None
+
+  with open(f_curr_sim_code) as json_file:
+    sim_code = json.load(json_file)["sim_code"]
+
+  if check_if_file_exists(f_curr_step):
+    with open(f_curr_step) as json_file:
+      step = json.load(json_file)["step"]
+    return sim_code, step
+
+  meta_file = f"storage/{sim_code}/reverie/meta.json"
+  if not check_if_file_exists(meta_file):
+    return None, None
+
+  with open(meta_file) as json_file:
+    step = json.load(json_file)["step"]
+  return sim_code, step
+
+
+def home(request):
+  sim_code, step = _load_current_sim_state()
+  if sim_code is None or step is None:
     context = {}
     template = "home/error_start_backend.html"
     return render(request, template, context)
-
-  with open(f_curr_sim_code) as json_file:  
-    sim_code = json.load(json_file)["sim_code"]
-  
-  with open(f_curr_step) as json_file:  
-    step = json.load(json_file)["step"]
-
-  os.remove(f_curr_step)
 
   persona_names = []
   persona_names_set = set()
@@ -312,7 +326,6 @@ def path_tester_update(request):
     outfile.write(json.dumps(camera, indent=2))
 
   return HttpResponse("received")
-
 
 
 
